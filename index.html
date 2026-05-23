@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mening butkim</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#f4f6fb;color:#1a1a1a}
+.app{max-width:720px;margin:0 auto;padding:1rem}
+.header{display:flex;align-items:center;gap:12px;padding:1rem 1.25rem;background:#fff;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:1rem}
+.logo{width:44px;height:44px;border-radius:8px;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:22px}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.nav-btn{padding:10px 6px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;cursor:pointer;font-size:13px;color:#6b7280;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s}
+.nav-btn:hover{background:#f9fafb}
+.nav-btn.active{border-color:#378ADD;color:#185FA5;background:#E6F1FB}
+.nav-btn i{font-size:20px}
+.section{display:none}
+.section.active{display:block}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.card h2{font-size:15px;font-weight:500;margin-bottom:1rem;color:#1a1a1a}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:12px;color:#6b7280}
+.form-group input,.form-group select{border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:14px;outline:none;background:#fff;color:#1a1a1a}
+.form-group input:focus,.form-group select:focus{border-color:#378ADD}
+.btn-primary{background:#378ADD;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;width:100%;margin-top:8px}
+.btn-primary:hover{background:#185FA5}
+.btn-primary:disabled{background:#93c5fd;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.stat{background:#f4f6fb;border-radius:8px;padding:1rem;text-align:center}
+.stat .val{font-size:18px;font-weight:500;color:#1a1a1a}
+.stat .lbl{font-size:12px;color:#6b7280;margin-top:2px}
+.txn-list{display:flex;flex-direction:column;gap:6px}
+.txn-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f9fafb;border-radius:8px;font-size:13px}
+.txn-item .ico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.txn-item .info{flex:1}
+.txn-item .name{font-weight:500;color:#1a1a1a}
+.txn-item .time{font-size:11px;color:#6b7280}
+.txn-item .amt{font-weight:500;color:#0F6E56}
+.txn-item .del-btn{background:none;border:none;cursor:pointer;color:#ef4444;font-size:16px;padding:4px;border-radius:6px;line-height:1}
+.txn-item .del-btn:hover{background:#fee2e2}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500}
+.badge-radar{background:#EEEDFE;color:#3C3489}
+.badge-karta{background:#E6F1FB;color:#0C447C}
+.badge-ksero{background:#EAF3DE;color:#27500A}
+.empty{text-align:center;color:#9ca3af;font-size:13px;padding:2rem 0}
+.alert{padding:10px 14px;background:#EAF3DE;border-radius:8px;font-size:13px;color:#27500A;margin-top:8px;display:none}
+.alert-err{background:#fee2e2;color:#991b1b}
+.loading{text-align:center;color:#6b7280;font-size:13px;padding:1.5rem 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">📡</div>
+    <div>
+      <div style="font-weight:500;font-size:16px">Mening butkim</div>
+      <div style="font-size:12px;color:#6b7280">Xizmatlar boshqaruvi</div>
+    </div>
+    <div style="margin-left:auto;font-size:13px;color:#6b7280" id="sana"></div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab('hisobot')" id="tab-hisobot">
+      <i class="ti ti-chart-bar"></i>Hisobot
+    </button>
+    <button class="nav-btn" onclick="showTab('radar')" id="tab-radar">
+      <i class="ti ti-radar"></i>Radar
+    </button>
+    <button class="nav-btn" onclick="showTab('karta')" id="tab-karta">
+      <i class="ti ti-credit-card"></i>Karta
+    </button>
+    <button class="nav-btn" onclick="showTab('ksero')" id="tab-ksero">
+      <i class="ti ti-copy"></i>Ksero
+    </button>
+  </div>
+
+  <!-- HISOBOT -->
+  <div class="section active" id="sec-hisobot">
+    <div class="stats">
+      <div class="stat"><div class="val" id="s-total">—</div><div class="lbl">Jami tushum</div></div>
+      <div class="stat"><div class="val" id="s-count">—</div><div class="lbl">Xizmatlar soni</div></div>
+      <div class="stat"><div class="val" id="s-today">—</div><div class="lbl">Bugungi</div></div>
+    </div>
+    <div class="card">
+      <h2><i class="ti ti-list" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>So'nggi operatsiyalar</h2>
+      <div class="txn-list" id="txn-list">
+        <div class="loading">Yuklanmoqda...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RADAR -->
+  <div class="section" id="sec-radar">
+    <div class="card">
+      <h2><i class="ti ti-radar" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>Radar yangilash (obnovleniya)</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Qurilma modeli</label>
+          <input type="text" id="r-model" placeholder="Navitel, Garmin...">
+        </div>
+        <div class="form-group">
+          <label>Xizmat turi</label>
+          <select id="r-type">
+            <option>Xarita yangilash</option>
+            <option>Dastur yangilash</option>
+            <option>To'liq sozlash</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Narxi (so'm)</label>
+          <input type="text" id="r-price" placeholder="50 000" inputmode="numeric" oninput="fmtInput(this)">
+        </div>
+        <div class="form-group">
+          <label>Mijoz ismi</label>
+          <input type="text" id="r-name" placeholder="Ismi">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Izoh (ixtiyoriy)</label>
+        <input type="text" id="r-note" placeholder="">
+      </div>
+      <button class="btn-primary" id="btn-radar" onclick="addTxn('radar')">+ Qo'shish</button>
+      <div class="alert" id="r-alert">✓ Radar xizmati saqlandi!</div>
+      <div class="alert alert-err" id="r-err">✗ Xatolik yuz berdi, qayta urining.</div>
+    </div>
+  </div>
+
+  <!-- KARTA -->
+  <div class="section" id="sec-karta">
+    <div class="card">
+      <h2><i class="ti ti-credit-card" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>Kartadan kartaga o'tkazish</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Yuboruvchi</label>
+          <input type="text" id="k-from" placeholder="Ismi yoki karta raqami">
+        </div>
+        <div class="form-group">
+          <label>Qabul qiluvchi</label>
+          <input type="text" id="k-to" placeholder="Ismi yoki karta raqami">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Miqdor (so'm)</label>
+          <input type="text" id="k-amount" placeholder="100 000" inputmode="numeric" oninput="fmtInput(this)">
+        </div>
+        <div class="form-group">
+          <label>Komissiya (so'm)</label>
+          <input type="text" id="k-fee" placeholder="5 000" inputmode="numeric" oninput="fmtInput(this)">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Izoh (ixtiyoriy)</label>
+        <input type="text" id="k-note" placeholder="">
+      </div>
+      <button class="btn-primary" id="btn-karta" onclick="addTxn('karta')">+ Qo'shish</button>
+      <div class="alert" id="k-alert">✓ O'tkazma saqlandi!</div>
+      <div class="alert alert-err" id="k-err">✗ Xatolik yuz berdi, qayta urining.</div>
+    </div>
+  </div>
+
+  <!-- KSERO -->
+  <div class="section" id="sec-ksero">
+    <div class="card">
+      <h2><i class="ti ti-copy" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>Ksero / Kopiya</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Xizmat turi</label>
+          <select id="x-type">
+            <option>Fotokopiya (qora-oq)</option>
+            <option>Fotokopiya (rangli)</option>
+            <option>Skanerlash</option>
+            <option>Chop etish</option>
+            <option>Laminating</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sahifalar soni</label>
+          <input type="number" id="x-pages" placeholder="1" min="1" oninput="calcXTotal()">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>1 sahifa narxi (so'm)</label>
+          <input type="text" id="x-price" placeholder="500" inputmode="numeric" oninput="fmtInput(this);calcXTotal();">
+        </div>
+        <div class="form-group">
+          <label>Jami summa</label>
+          <input type="text" id="x-total" placeholder="avtomatik" readonly style="background:#f4f6fb">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Izoh (ixtiyoriy)</label>
+        <input type="text" id="x-note" placeholder="">
+      </div>
+      <button class="btn-primary" id="btn-ksero" onclick="addTxn('ksero')">+ Qo'shish</button>
+      <div class="alert" id="x-alert">✓ Ksero xizmati saqlandi!</div>
+      <div class="alert alert-err" id="x-err">✗ Xatolik yuz berdi, qayta urining.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var API = 'https://69e35f8f3327837a155312d8.mockapi.io/api/v1/carousels';
+var txns = [];
+
+function fmt(n){return Number(n).toLocaleString('uz-UZ');}
+
+document.getElementById('sana').textContent = new Date().toLocaleDateString('uz-UZ',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+function fmtInput(el){
+  var raw=el.value.replace(/\s/g,'').replace(/[^0-9]/g,'');
+  var cursor=el.selectionStart;
+  var beforeCursor=el.value.slice(0,cursor).replace(/\s/g,'').replace(/[^0-9]/g,'').length;
+  if(raw===''){el.value='';return;}
+  var formatted=Number(raw).toLocaleString('uz-UZ').replace(/,/g,' ');
+  el.value=formatted;
+  var newPos=0,count=0;
+  for(var i=0;i<formatted.length;i++){
+    if(/[0-9]/.test(formatted[i]))count++;
+    if(count===beforeCursor){newPos=i+1;break;}
+  }
+  el.setSelectionRange(newPos,newPos);
+}
+
+function parseRaw(id){
+  var v=document.getElementById(id).value.replace(/\s/g,'').replace(/[^0-9]/g,'');
+  return parseFloat(v)||0;
+}
+
+function calcXTotal(){
+  var p=parseFloat(document.getElementById('x-pages').value)||0;
+  var pr=parseRaw('x-price');
+  var total=p*pr;
+  document.getElementById('x-total').value=total?Number(total).toLocaleString('uz-UZ').replace(/,/g,' '):'';
+}
+
+function showTab(tab){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('sec-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+function showAlert(id, isErr){
+  var el=document.getElementById(id);
+  el.style.display='block';
+  setTimeout(function(){el.style.display='none';},2500);
+}
+
+function loadTxns(){
+  fetch(API)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      txns = data.sort(function(a,b){return b.id - a.id;});
+      updateStats();
+      renderList();
+    })
+    .catch(function(){
+      document.getElementById('txn-list').innerHTML='<div class="empty">Serverga ulanib bo\'lmadi.</div>';
+    });
+}
+
+function addTxn(type){
+  var t=new Date();
+  var timeStr=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0');
+  var dateStr=t.toLocaleDateString('uz-UZ',{day:'2-digit',month:'2-digit'});
+  var txn={type:type, time:dateStr+' '+timeStr};
+  var btnId='btn-'+type;
+
+  if(type==='radar'){
+    txn.model=document.getElementById('r-model').value||"Noma'lum";
+    txn.stype=document.getElementById('r-type').value;
+    txn.amount=parseRaw('r-price');
+    txn.label=txn.model+' — '+txn.stype;
+    txn.note=document.getElementById('r-note').value;
+    txn.client=document.getElementById('r-name').value;
+  } else if(type==='karta'){
+    txn.from=document.getElementById('k-from').value||'—';
+    txn.to=document.getElementById('k-to').value||'—';
+    txn.amount=parseRaw('k-fee');
+    txn.sum=parseRaw('k-amount');
+    txn.label=txn.from+' → '+txn.to;
+    txn.note=document.getElementById('k-note').value;
+  } else {
+    txn.stype=document.getElementById('x-type').value;
+    txn.pages=parseFloat(document.getElementById('x-pages').value)||0;
+    txn.amount=parseRaw('x-total');
+    txn.label=txn.stype+' ('+txn.pages+' bet)';
+    txn.note=document.getElementById('x-note').value;
+  }
+
+  var btn=document.getElementById(btnId);
+  btn.disabled=true;
+  btn.textContent='Saqlanmoqda...';
+
+  fetch(API, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(txn)
+  })
+  .then(function(r){return r.json();})
+  .then(function(saved){
+    txns.unshift(saved);
+    updateStats();
+    renderList();
+
+    if(type==='radar'){
+      document.getElementById('r-model').value='';
+      document.getElementById('r-price').value='';
+      document.getElementById('r-name').value='';
+      document.getElementById('r-note').value='';
+      showAlert('r-alert');
+    } else if(type==='karta'){
+      document.getElementById('k-from').value='';
+      document.getElementById('k-to').value='';
+      document.getElementById('k-amount').value='';
+      document.getElementById('k-fee').value='';
+      document.getElementById('k-note').value='';
+      showAlert('k-alert');
+    } else {
+      document.getElementById('x-pages').value='';
+      document.getElementById('x-price').value='';
+      document.getElementById('x-total').value='';
+      document.getElementById('x-note').value='';
+      showAlert('x-alert');
+    }
+  })
+  .catch(function(){
+    showAlert(type==='radar'?'r-err':type==='karta'?'k-err':'x-err', true);
+  })
+  .finally(function(){
+    btn.disabled=false;
+    btn.textContent='+ Qo\'shish';
+  });
+}
+
+function deleteTxn(id){
+  if(!confirm('O\'chirishni tasdiqlaysizmi?')) return;
+  fetch(API+'/'+id, {method:'DELETE'})
+    .then(function(){
+      txns=txns.filter(function(t){return t.id!=id;});
+      updateStats();
+      renderList();
+    });
+}
+
+function updateStats(){
+  var total=txns.reduce(function(a,b){return a+(parseFloat(b.amount)||0);},0);
+  var today=new Date().toLocaleDateString('uz-UZ',{day:'2-digit',month:'2-digit'});
+  var todaySum=txns.filter(function(t){return t.time&&t.time.startsWith(today);}).reduce(function(a,b){return a+(parseFloat(b.amount)||0);},0);
+  document.getElementById('s-total').textContent=fmt(total)+' so\'m';
+  document.getElementById('s-count').textContent=txns.length;
+  document.getElementById('s-today').textContent=fmt(todaySum)+' so\'m';
+}
+
+function renderList(){
+  var list=document.getElementById('txn-list');
+  if(txns.length===0){list.innerHTML="<div class='empty'>Hali operatsiya yo'q. Xizmat qo'shing!</div>";return;}
+  var icons={radar:'📡',karta:'💳',ksero:'🖨️'};
+  var colors={radar:'badge-radar',karta:'badge-karta',ksero:'badge-ksero'};
+  var labels={radar:'Radar',karta:'Karta',ksero:'Ksero'};
+  list.innerHTML=txns.slice(0,30).map(function(t){
+    var sub=t.note?' · '+t.note:'';
+    var clientInfo=t.client?' · '+t.client:'';
+    var ico=icons[t.type]||'📋';
+    var color=colors[t.type]||'badge-ksero';
+    var label=labels[t.type]||t.type;
+    return '<div class="txn-item">'
+      +'<div class="ico">'+ico+'</div>'
+      +'<div class="info">'
+      +'<div class="name">'+(t.label||'—')+clientInfo+'</div>'
+      +'<div class="time">'+(t.time||'')+ sub+' &nbsp;<span class="badge '+color+'">'+label+'</span></div>'
+      +'</div>'
+      +'<div class="amt">+'+fmt(t.amount)+' so\'m</div>'
+      +'<button class="del-btn" onclick="deleteTxn(\''+t.id+'\')" title="O\'chirish">✕</button>'
+      +'</div>';
+  }).join('');
+}
+
+loadTxns();
+</script>
+</body>
+</html>
